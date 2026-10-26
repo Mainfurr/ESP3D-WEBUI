@@ -30,7 +30,7 @@ const sortedFilesList = (filesList, alphabeticaly) => {
     if (alphabeticaly) {
         //console.log('Sorting alphabetically')
         filesList.sort(function (a, b) {
-            return compareStrings(a.name, b.name)
+            return compareStrings(a.displayName || a.name, b.displayName || b.name)
         })
     }
     filesList.sort(function (a, b) {
@@ -46,7 +46,13 @@ const sortedFilesList = (filesList, alphabeticaly) => {
 //Filter array of flat FS file list based on path
 const filterResultFiles = (files, path) => {
     const folderList = []
+    const pathDepth = path == "/" ? 0 : path.substring(1).split("/").length
     return files.reduce((acc, element) => {
+        const displayPath = (element.displayName || element.name).replace(
+            /^\//,
+            ""
+        )
+        const displayParts = displayPath.split("/")
         if (path == "/") {
             if (element.name.indexOf("/") == -1) acc.push(element)
             else {
@@ -57,7 +63,11 @@ const filterResultFiles = (files, path) => {
                 )
                 if (!folderList.includes(name)) {
                     folderList.push(name)
-                    acc.push({ name, size: "-1" })
+                    acc.push({
+                        name,
+                        displayName: displayParts[0] || name,
+                        size: "-1",
+                    })
                 }
             }
         } else {
@@ -69,7 +79,12 @@ const filterResultFiles = (files, path) => {
                 //it is file or subfile ?
                 if (newpath.indexOf("/") == -1 && newpath.length > 0) {
                     //file
-                    acc.push({ name: newpath, size: element.size })
+                    acc.push({
+                        name: newpath,
+                        displayName:
+                            displayParts.slice(pathDepth).join("/") || newpath,
+                        size: element.size,
+                    })
                 } else {
                     //subdir
                     const foldername = newpath.substring(
@@ -81,7 +96,12 @@ const filterResultFiles = (files, path) => {
                         foldername.length > 0
                     ) {
                         folderList.push(foldername)
-                        acc.push({ name: foldername, size: "-1" })
+                        acc.push({
+                            name: foldername,
+                            displayName:
+                                displayParts[pathDepth] || foldername,
+                            size: "-1",
+                        })
                     }
                 }
             }

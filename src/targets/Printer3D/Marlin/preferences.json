@@ -88,7 +88,7 @@
                         "id": "sdlistcmd",
                         "type": "text",
                         "label": "P95",
-                        "value": "M21;M20",
+                        "value": "M21;M20 L",
                         "help": "S97",
                         "depend": [
                             {

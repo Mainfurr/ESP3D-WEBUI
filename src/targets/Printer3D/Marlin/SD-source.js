@@ -34,17 +34,29 @@ const formatFileSerialLine = (lines) => {
     const extensionsPattern = [...filesFilter.matchAll(extRegExp)]
         .map((item) => item[1].trim())
         .join("|")
-    const lineParserPattern = `^(?:(?<path>.*\\.(?:${extensionsPattern}))? *(?<size>\\d+)? )?(?:(?<pathAlt>.*\\.(?:${extensionsPattern}))? *((?<sizeAlt>\\d*) *)?)$`
+    const fileNamePattern = new RegExp(
+        `\\.(?:${extensionsPattern})$`,
+        "i"
+    )
     return lines.reduce((acc, file) => {
-        const fileRegex = new RegExp(lineParserPattern, "ig")
-        const m = fileRegex.exec(file.trim())
-        if (m) {
-            const { path, size, pathAlt, sizeAlt } = m.groups
+        // M20 L returns: <8.3 path> <size> <long file name>.
+        // Keep the first field for commands sent to Marlin and expose the
+        // last field solely as the name shown by the UI.
+        const m = file
+            .trim()
+            .match(/^(?<path>\S+)\s+(?<size>\d+)(?:\s+(?<displayName>.+))?$/)
+        if (
+            m &&
+            (fileNamePattern.test(m.groups.displayName) ||
+                fileNamePattern.test(m.groups.path))
+        ) {
+            const { path, size, displayName } = m.groups
             return [
                 ...acc,
                 {
-                    name: pathAlt || path,
-                    size: formatFileSizeToString(sizeAlt || size),
+                    name: path,
+                    displayName: displayName || path,
+                    size: formatFileSizeToString(size),
                 },
             ]
         }
@@ -81,11 +93,17 @@ const capabilities = {
     },
 }
 
+const getSDListCommand = () => {
+    const command = useUiContextFn.getValue("sdlistcmd")
+    // Existing user preferences may still contain "M20" without L.
+    return command.replace(/\bM20\b(?!\s+L\b)/i, "M20 L")
+}
+
 const commands = {
     list: (path, filename) => {
         return {
             type: "cmd",
-            cmd: useUiContextFn.getValue("sdlistcmd"),
+            cmd: getSDListCommand(),
         }
     },
     upload: (path, filename) => {

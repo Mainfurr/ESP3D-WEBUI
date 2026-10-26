@@ -826,7 +826,7 @@ const FilesPanel = () => {
                                         ) : (
                                             <File />
                                         )}
-                                        <label>{line.name}</label>
+                                        <label>{line.displayName || line.name}</label>
                                     </div>
                                     <div class="file-line-controls">
                                         {line.size != -1 && (
@@ -899,7 +899,8 @@ const FilesPanel = () => {
                                                             </div>
                                                             <center>
                                                                 <li>
-                                                                    {line.name}
+                                                                    {line.displayName ||
+                                                                        line.name}
                                                                 </li>
                                                             </center>
                                                         </Fragment>
