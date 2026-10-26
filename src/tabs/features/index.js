@@ -45,6 +45,7 @@ import { Field } from "../../components/Controls"
 import { formatStructure } from "./formatHelper"
 import { exportFeatures } from "./exportHelper"
 import { importFeatures } from "./importHelper"
+import { SlicerKeys } from "./slicerKeys"
 import { restartdelay, useTargetContextFn } from "../../targets"
 
 const FeaturesTab = () => {
@@ -566,6 +567,7 @@ const FeaturesTab = () => {
                                 })}
                             </Fragment>
                         )}
+                        <SlicerKeys />
                     </div>
                 </Fragment>
             )}

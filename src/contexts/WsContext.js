@@ -27,6 +27,7 @@ import {
 import { useHttpFn } from "../hooks"
 import { getCookie, splitArrayByLines, dispatchToExtensions } from "../components/Helpers"
 import { T } from "../components/Translations"
+import { notifyPairing } from "../components/Modal/pairingPrompt"
 
 
 /*
@@ -119,6 +120,12 @@ const WsContextProvider = ({ children }) => {
                                     ? "warning"
                                     : "notification",
                         })
+                        break
+                    case "PAIRING":
+                        //Slicer API key request, see pairingPrompt.js
+                        notifyPairing(
+                            stdOutData.substring(eventLine[0].length + 1)
+                        )
                         break
                     case "ERROR":
                         console.log(stdOutData)

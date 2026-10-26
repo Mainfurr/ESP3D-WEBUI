@@ -31,6 +31,7 @@ import { TargetContextProvider } from "../../targets"
 import { ContainerHelper } from "../Controls"
 import { ContentContainer } from "../../areas"
 import { ElementsCache } from "../../areas/elementsCache"
+import { PairingPrompt } from "../Modal/pairingPrompt"
 
 const App = () => {
     return (
@@ -46,6 +47,7 @@ const App = () => {
                                         <ContainerHelper id="top_container" active={true}/>
                                         <ElementsCache />
                                         <ContentContainer />
+                                        <PairingPrompt />
                                     </WsContextProvider>
                                 </SettingsContextProvider>
                             </HttpQueueContextProvider>
