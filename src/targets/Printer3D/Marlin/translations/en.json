@@ -1,3 +1,4 @@
 {
-    "E1": "Please use 8.3 filename only."
+    "E1": "Please use 8.3 filename only.",
+    "E2": "Upload to the SD card root only. The name must be at most 120 characters, without / \\ : * ? \" < > |."
 }
