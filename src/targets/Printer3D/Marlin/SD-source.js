@@ -131,6 +131,8 @@ const commands = {
             url: "api/files/local",
             fileField: "file",
             plainFileName: true,
+            //ESP3D reports the bytes written to the SD on the websocket
+            serverProgress: true,
             args: { path },
         }
     },

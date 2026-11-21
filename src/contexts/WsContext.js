@@ -121,6 +121,15 @@ const WsContextProvider = ({ children }) => {
                                     : "notification",
                         })
                         break
+                    case "BFT":
+                        //Bytes ESP3D has written to the printer SD so far
+                        //during an upload, see Files.js
+                        window.dispatchEvent(
+                            new CustomEvent("esp3d-bft-progress", {
+                                detail: parseInt(eventLine[1]),
+                            })
+                        )
+                        break
                     case "PAIRING":
                         //Slicer API key request, see pairingPrompt.js
                         notifyPairing(

@@ -261,13 +261,44 @@ const FilesPanel = () => {
                         fileName
                 )
             }
+            //The browser counts bytes handed to its socket, which can be far
+            //ahead of the target. Prefer the target's own count if it sends one.
+            let serverProgressSeen = false
+            const totalSize = list.length == 1 ? list[0].size : 0
+            const onServerProgress = (e) => {
+                if (!totalSize || isNaN(e.detail)) return
+                serverProgressSeen = true
+                if (
+                    progressBar.update &&
+                    typeof progressBar.update === "function"
+                )
+                    progressBar.update(
+                        Math.min(
+                            100,
+                            Math.floor((e.detail / totalSize) * 1000) / 10
+                        )
+                    )
+            }
+            const stopServerProgress = () =>
+                window.removeEventListener(
+                    "esp3d-bft-progress",
+                    onServerProgress
+                )
+            if (cmd.serverProgress)
+                window.addEventListener("esp3d-bft-progress", onServerProgress)
             //now do request
             createNewRequest(
                 espHttpURL(cmd.url),
                 { method: "POST", id: "upload", body: formData },
                 {
                     onSuccess: (result) => {
-                        modals.removeModal(modals.getModalIndex("upload"))
+                        stopServerProgress()
+                        if (
+                            progressBar.update &&
+                            typeof progressBar.update === "function"
+                        )
+                            progressBar.update(100)
+                        modals.removeModal(modals.getModalIndex("progression"))
                         const cmdpost = files.command(
                             currentFS,
                             "postUpload",
@@ -292,11 +323,17 @@ const FilesPanel = () => {
                         }
                     },
                     onFail: (error) => {
-                        modals.removeModal(modals.getModalIndex("upload"))
+                        stopServerProgress()
+                        modals.removeModal(modals.getModalIndex("progression"))
                         toasts.addToast({ content: error, type: "error" })
                         setIsLoading(false)
+                        //a cancelled or failed upload may change the list,
+                        //once the target has finished cleaning up
+                        if (cmd.serverProgress)
+                            setTimeout(() => onRefresh(null, false), 3000)
                     },
                     onProgress: (e) => {
+                        if (serverProgressSeen) return
                         if (
                             progressBar.update &&
                             typeof progressBar.update === "function"
